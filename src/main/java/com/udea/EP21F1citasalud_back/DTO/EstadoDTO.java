@@ -1,25 +1,21 @@
-package com.udea.EP21F1citasalud_back.entity;
+package com.udea.EP21F1citasalud_back.DTO;
 
-import jakarta.persistence.*;
 import java.util.Objects;
 
-@Entity
-@Table(name = "estado")
-public class Estado {
+public class EstadoDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_estado")
     private Integer idEstado;
-
-    @Column(name = "nombre_estado", length = 20, nullable = false)
     private String nombreEstado;
-
-    @Column(name = "descripcion", length = 200)
     private String descripcion;
 
     // Constructores
-    public Estado() {
+    public EstadoDTO() {
+    }
+
+    public EstadoDTO(Integer idEstado, String nombreEstado, String descripcion) {
+        this.idEstado = idEstado;
+        this.nombreEstado = nombreEstado;
+        this.descripcion = descripcion;
     }
 
     // Getters y Setters
@@ -52,8 +48,8 @@ public class Estado {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Estado estado = (Estado) o;
-        return Objects.equals(idEstado, estado.idEstado);
+        EstadoDTO estadoDTO = (EstadoDTO) o;
+        return Objects.equals(idEstado, estadoDTO.idEstado);
     }
 
     @Override
@@ -63,7 +59,7 @@ public class Estado {
 
     @Override
     public String toString() {
-        return "Estado{" +
+        return "EstadoDTO{" +
                 "idEstado=" + idEstado +
                 ", nombreEstado='" + nombreEstado + '\'' +
                 ", descripcion='" + descripcion + '\'' +

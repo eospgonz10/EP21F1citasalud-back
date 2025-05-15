@@ -1,22 +1,19 @@
-package com.udea.EP21F1citasalud_back.entity;
+package com.udea.EP21F1citasalud_back.DTO;
 
-import jakarta.persistence.*;
 import java.util.Objects;
 
-@Entity
-@Table(name = "tipo_documento")
-public class TipoDocumento {
+public class TipoDocumentoDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_tipo_documento")
     private Integer idTipoDocumento;
-
-    @Column(name = "tipo_documento", nullable = false)
     private String tipoDocumento;
 
     // Constructores
-    public TipoDocumento() {
+    public TipoDocumentoDTO() {
+    }
+
+    public TipoDocumentoDTO(Integer idTipoDocumento, String tipoDocumento) {
+        this.idTipoDocumento = idTipoDocumento;
+        this.tipoDocumento = tipoDocumento;
     }
 
     // Getters y Setters
@@ -41,8 +38,8 @@ public class TipoDocumento {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TipoDocumento tipoDoc = (TipoDocumento) o;
-        return Objects.equals(idTipoDocumento, tipoDoc.idTipoDocumento);
+        TipoDocumentoDTO that = (TipoDocumentoDTO) o;
+        return Objects.equals(idTipoDocumento, that.idTipoDocumento);
     }
 
     @Override
@@ -52,7 +49,7 @@ public class TipoDocumento {
 
     @Override
     public String toString() {
-        return "TipoDocumento{" +
+        return "TipoDocumentoDTO{" +
                 "idTipoDocumento=" + idTipoDocumento +
                 ", tipoDocumento='" + tipoDocumento + '\'' +
                 '}';

@@ -2,13 +2,12 @@ package com.udea.EP21F1citasalud_back.mapper;
 
 import com.udea.EP21F1citasalud_back.DTO.UserDTO;
 import com.udea.EP21F1citasalud_back.entity.Estado;
-import com.udea.EP21F1citasalud_back.entity.Rol;
 import com.udea.EP21F1citasalud_back.entity.TipoDocumento;
 import com.udea.EP21F1citasalud_back.entity.User;
-
+import com.udea.EP21F1citasalud_back.DTO.EstadoDTO;
+import com.udea.EP21F1citasalud_back.DTO.TipoDocumentoDTO;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,84 +15,162 @@ import java.util.stream.Collectors;
 public class UserMapper {
 
     /**
-     * Convierte una entidad User a un DTO
+     * Convierte una entidad Usuario a un DTO
+     * @param usuario Entidad a convertir
+     * @return UsuarioDTO correspondiente
      */
-    public UserDTO toDTO(User user) {
-        if (user == null) {
+    public UserDTO toDto(UserDTO usuario) {
+        if (usuario == null) {
             return null;
         }
 
         UserDTO dto = new UserDTO();
-        dto.setId(user.getUsuario_id());
-        dto.setNombre(user.getNombre());
-        dto.setApellido(user.getApellido());
-        dto.setEmail(user.getEmail());
-        dto.setDocumento(user.getDocumento());
-        dto.setTelefono(user.getTelefono());
-        dto.setFechaRegistro(user.getFecha_registro());
-        dto.setUltimoAcceso(user.getUltimo_acceso());
-
-        if (user.getTipoDocumento() != null) {
-            dto.setTipoDocumentoId(user.getTipoDocumento().getId_tipo_documento());
-            dto.setTipoDocumentoNombre(user.getTipoDocumento().getTipo_documento());
-        }
-
-        if (user.getEstado() != null) {
-            dto.setEstadoId(user.getEstado().getId_estado());
-            dto.setEstadoNombre(user.getEstado().getNombre_estado());
-        }
-
-        if (user.getRoles() != null) {
-            dto.setRolesIds(user.getRoles().stream()
-                    .map(Rol::getRol_id)
-                    .collect(Collectors.toList()));
-        }
-
-        // No incluir la contraseña en el DTO por seguridad
+        dto.setUsuarioId(usuario.getUsuarioId());
+        dto.setNombre(usuario.getNombre());
+        dto.setApellido(usuario.getApellido());
+        dto.setEmail(usuario.getEmail());
+        dto.setDocumento(usuario.getDocumento());
+        dto.setTipoDocumento(toTipoDocumentoDto(usuario.getTipoDocumento()));
+        dto.setPassword(usuario.getPassword());
+        dto.setTelefono(usuario.getTelefono());
+        dto.setFechaRegistro(usuario.getFechaRegistro());
+        dto.setUltimoAcceso(usuario.getUltimoAcceso());
+        dto.setEstado(toEstadoDto(usuario.getEstado()));
 
         return dto;
     }
 
+    public User toEntity(UserDTO usuarioDTO) {
+        if (usuarioDTO == null) {
+            return null;
+        }
+
+        User usuario = new User();
+        usuario.setUsuarioId(usuarioDTO.getUsuarioId());
+        usuario.setNombre(usuarioDTO.getNombre());
+        usuario.setApellido(usuarioDTO.getApellido());
+        usuario.setEmail(usuarioDTO.getEmail());
+        usuario.setDocumento(usuarioDTO.getDocumento());
+        usuario.setTipoDocumento(toTipoDocumentoEntity(usuarioDTO.getTipoDocumento()));
+        usuario.setPassword(usuarioDTO.getPassword());
+        usuario.setTelefono(usuarioDTO.getTelefono());
+        usuario.setFechaRegistro(usuarioDTO.getFechaRegistro());
+        usuario.setUltimoAcceso(usuarioDTO.getUltimoAcceso());
+        usuario.setEstado(toEstadoEntity(usuarioDTO.getEstado()));
+
+        return usuario;
+    }
+
     /**
-     * Convierte un UserDTO a una entidad User
-     * Nota: Este método no establece relaciones complejas - se deben manejar en el servicio
+     * Convierte una lista de entidades Usuario a lista de DTOs
+     * @param usuarios Lista de entidades a convertir
+     * @return Lista de UsuarioDTO correspondientes
      */
-    public User toEntity(UserDTO dto, TipoDocumento tipoDocumento, Estado estado, List<Rol> roles) {
+    public List<UserDTO> toDtoList(List<User> usuarios) {
+        if (usuarios == null) {
+            return null;
+        }
+
+        return usuarios.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Actualiza los datos de una entidad Usuario existente con los datos de un DTO
+     * @param usuario Entidad a actualizar
+     * @param usuarioDTO DTO con los nuevos datos
+     * @return Entidad Usuario actualizada
+     */
+    public User updateEntityFromDto(User usuario, UserDTO usuarioDTO) {
+        if (usuarioDTO == null) {
+            return usuario;
+        }
+
+        // Solo actualizamos los campos que no son null en el DTO
+        if (usuarioDTO.getNombre() != null) {
+            usuario.setNombre(usuarioDTO.getNombre());
+        }
+        if (usuarioDTO.getApellido() != null) {
+            usuario.setApellido(usuarioDTO.getApellido());
+        }
+        if (usuarioDTO.getEmail() != null) {
+            usuario.setEmail(usuarioDTO.getEmail());
+        }
+        if (usuarioDTO.getDocumento() != null) {
+            usuario.setDocumento(usuarioDTO.getDocumento());
+        }
+        if (usuarioDTO.getTipoDocumento() != null) {
+            usuario.setTipoDocumento(toTipoDocumentoEntity(usuarioDTO.getTipoDocumento()));
+        }
+        if (usuarioDTO.getPassword() != null) {
+            usuario.setPassword(usuarioDTO.getPassword());
+        }
+        if (usuarioDTO.getTelefono() != null) {
+            usuario.setTelefono(usuarioDTO.getTelefono());
+        }
+        if (usuarioDTO.getFechaRegistro() != null) {
+            usuario.setFechaRegistro(usuarioDTO.getFechaRegistro());
+        }
+        if (usuarioDTO.getUltimoAcceso() != null) {
+            usuario.setUltimoAcceso(usuarioDTO.getUltimoAcceso());
+        }
+        if (usuarioDTO.getEstado() != null) {
+            usuario.setEstado(toEstadoEntity(usuarioDTO.getEstado()));
+        }
+
+        return usuario;
+    }
+
+    // Métodos auxiliares para mapear TipoDocumento
+    private TipoDocumentoDTO toTipoDocumentoDto(TipoDocumento tipoDocumento) {
+        if (tipoDocumento == null) {
+            return null;
+        }
+
+        TipoDocumentoDTO dto = new TipoDocumentoDTO();
+        dto.setIdTipoDocumento(tipoDocumento.getIdTipoDocumento());
+        dto.setTipoDocumento(tipoDocumento.getTipoDocumento());
+
+        return dto;
+    }
+
+    private TipoDocumento toTipoDocumentoEntity(TipoDocumentoDTO dto) {
         if (dto == null) {
             return null;
         }
 
-        User user = new User();
-        user.setUsuario_id(dto.getId());
-        user.setNombre(dto.getNombre());
-        user.setApellido(dto.getApellido());
-        user.setEmail(dto.getEmail());
-        user.setDocumento(dto.getDocumento());
-        user.setTelefono(dto.getTelefono());
-        user.setFecha_registro(dto.getFechaRegistro());
-        user.setUltimo_acceso(dto.getUltimoAcceso());
-        user.setTipoDocumento(tipoDocumento);
-        user.setEstado(estado);
-        user.setRoles(roles);
+        TipoDocumento tipoDocumento = new TipoDocumento();
+        tipoDocumento.setIdTipoDocumento(dto.getIdTipoDocumento());
+        tipoDocumento.setTipoDocumento(dto.getTipoDocumento());
 
-        // Si hay una contraseña en el DTO (caso de creación o actualización), usarla
-        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            user.setPassword(dto.getPassword());
-        }
-
-        return user;
+        return tipoDocumento;
     }
 
-    /**
-     * Convierte una lista de entidades a una lista de DTOs
-     */
-    public List<UserDTO> toDTOList(List<User> users) {
-        if (users == null) {
-            return new ArrayList<>();
+    // Métodos auxiliares para mapear Estado
+    private EstadoDTO toEstadoDto(Estado estado) {
+        if (estado == null) {
+            return null;
         }
 
-        return users.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        EstadoDTO dto = new EstadoDTO();
+        dto.setIdEstado(estado.getIdEstado());
+        dto.setNombreEstado(estado.getNombreEstado());
+        dto.setDescripcion(estado.getDescripcion());
+
+        return dto;
+    }
+
+    private Estado toEstadoEntity(EstadoDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        Estado estado = new Estado();
+        estado.setIdEstado(dto.getIdEstado());
+        estado.setNombreEstado(dto.getNombreEstado());
+        estado.setDescripcion(dto.getDescripcion());
+
+        return estado;
     }
 }

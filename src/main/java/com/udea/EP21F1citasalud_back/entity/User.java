@@ -2,94 +2,60 @@ package com.udea.EP21F1citasalud_back.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuario")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long usuario_id;
+    @Column(name = "usuario_id")
+    private Long usuarioId;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "nombre", length = 80, nullable = false)
     private String nombre;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "apellido", length = 50, nullable = false)
     private String apellido;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "documento", length = 15, nullable = false)
     private String documento;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo_documento", nullable = false)
     private TipoDocumento tipoDocumento;
 
-    @Column(nullable = false, length = 200)
+    @Column(name = "password", length = 80, nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "telefono", length = 20)
     private String telefono;
 
-    @Column(nullable = false)
-    private LocalDate fecha_registro;
+    @Column(name = "fecha_registro", nullable = false)
+    private LocalDate fechaRegistro;
 
-    private LocalDate ultimo_acceso;
+    @Column(name = "ultimo_acceso")
+    private LocalDate ultimoAcceso;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_estado", nullable = false)
     private Estado estado;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Credencial> credenciales;
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<RegistroAcceso> registrosAcceso;
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Notificacion> notificaciones;
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<ActividadUsuario> actividades;
-
-    @ManyToMany
-    @JoinTable(
-            name = "roles_usuario",
-            joinColumns = @JoinColumn(name = "usuario_id"),
-            inverseJoinColumns = @JoinColumn(name = "rol_id")
-    )
-    private List<Rol> roles;
-
+    // Constructores
     public User() {
     }
 
-    public User(String nombre, String apellido, String email,
-                String documento, TipoDocumento tipoDocumento,
-                String password, String telefono,
-                LocalDate fecha_registro, LocalDate ultimo_acceso,
-                Estado estado) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.email = email;
-        this.documento = documento;
-        this.tipoDocumento = tipoDocumento;
-        this.password = password;
-        this.telefono = telefono;
-        this.fecha_registro = fecha_registro;
-        this.ultimo_acceso = ultimo_acceso;
-        this.estado = estado;
+    // Getters y Setters
+    public Long getUsuarioId() {
+        return usuarioId;
     }
 
-    // Getters y setters
-    public Long getUsuario_id() {
-        return usuario_id;
-    }
-
-    public void setUsuario_id(Long usuario_id) {
-        this.usuario_id = usuario_id;
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
     }
 
     public String getNombre() {
@@ -148,70 +114,53 @@ public class User {
         this.telefono = telefono;
     }
 
-    public LocalDate getFecha_registro() {
-        return fecha_registro;
+    public LocalDate getFechaRegistro() {
+        return fechaRegistro;
     }
 
-    public void setFecha_registro(LocalDate fecha_registro) {
-        this.fecha_registro = fecha_registro;
+    public void setFechaRegistro(LocalDate fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
     }
 
-    public LocalDate getUltimo_acceso() {
-        return ultimo_acceso;
+    public LocalDate getUltimoAcceso() {
+        return ultimoAcceso;
     }
 
-    public void setUltimo_acceso(LocalDate ultimo_acceso) {
-        this.ultimo_acceso = ultimo_acceso;
+    public void setUltimoAcceso(LocalDate ultimoAcceso) {
+        this.ultimoAcceso = ultimoAcceso;
     }
 
     public Estado getEstado() {
         return estado;
     }
 
-    public void setEstado(boolean estado) {
+    public void setEstado(Estado estado) {
         this.estado = estado;
     }
 
-    public List<Credencial> getCredenciales() {
-        return credenciales;
+    // equals y hashCode
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User usuario = (User) o;
+        return Objects.equals(usuarioId, usuario.usuarioId);
     }
 
-    public void setCredenciales(List<Credencial> credenciales) {
-        this.credenciales = credenciales;
+    @Override
+    public int hashCode() {
+        return Objects.hash(usuarioId);
     }
 
-    public List<RegistroAcceso> getRegistrosAcceso() {
-        return registrosAcceso;
-    }
-
-    public void setRegistrosAcceso(List<RegistroAcceso> registrosAcceso) {
-        this.registrosAcceso = registrosAcceso;
-    }
-
-    public List<Notificacion> getNotificaciones() {
-        return notificaciones;
-    }
-
-    public void setNotificaciones(List<Notificacion> notificaciones) {
-        this.notificaciones = notificaciones;
-    }
-
-    public List<ActividadUsuario> getActividades() {
-        return actividades;
-    }
-
-    public void setActividades(List<ActividadUsuario> actividades) {
-        this.actividades = actividades;
-    }
-
-    public List<Rol> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Rol> roles) {
-        this.roles = roles;
-    }
-
-    public Object isEstado() {
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "usuarioId=" + usuarioId +
+                ", nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", email='" + email + '\'' +
+                ", documento='" + documento + '\'' +
+                ", fechaRegistro=" + fechaRegistro +
+                '}';
     }
 }

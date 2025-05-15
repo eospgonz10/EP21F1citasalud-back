@@ -1,61 +1,53 @@
 package com.udea.EP21F1citasalud_back.DTO;
 
+
+import com.udea.EP21F1citasalud_back.entity.TipoDocumento;
+
 import java.time.LocalDate;
-import java.util.List;
-import jakarta.validation.constraints.*;
+import java.util.Objects;
 
 public class UserDTO {
 
-    private Long id;
-
-    @NotBlank(message = "El nombre es obligatorio")
-    @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
+    private Long usuarioId;
     private String nombre;
-
-    @NotBlank(message = "El apellido es obligatorio")
-    @Size(min = 2, max = 50, message = "El apellido debe tener entre 2 y 50 caracteres")
     private String apellido;
-
-    @NotBlank(message = "El email es obligatorio")
-    @Email(message = "El formato del email no es válido")
     private String email;
-
-    @NotBlank(message = "El documento es obligatorio")
     private String documento;
-
-    @NotNull(message = "El tipo de documento es obligatorio")
-    private Integer tipoDocumentoId;
-
-    private String tipoDocumentoNombre;
-
-    @Pattern(regexp = "^[0-9]{7,20}$", message = "El teléfono debe tener entre 7 y 20 dígitos")
-    private String telefono;
-
-    private LocalDate fechaRegistro;
-
-    private LocalDate ultimoAcceso;
-
-    @NotNull(message = "El estado es obligatorio")
-    private Integer estadoId;
-
-    private String estadoNombre;
-
-    private List<Integer> rolesIds;
-
-    // Solo para creación, nunca se devuelve
+    private TipoDocumentoDTO tipoDocumento;
     private String password;
+    private String telefono;
+    private LocalDate fechaRegistro;
+    private LocalDate ultimoAcceso;
+    private EstadoDTO estado;
 
     // Constructores
     public UserDTO() {
     }
 
-    // Getters y setters
-    public Long getId() {
-        return id;
+    public UserDTO(Long usuarioId, String nombre, String apellido, String email,
+                      String documento, TipoDocumentoDTO tipoDocumento, String password,
+                      String telefono, LocalDate fechaRegistro, LocalDate ultimoAcceso,
+                      EstadoDTO estado) {
+        this.usuarioId = usuarioId;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.documento = documento;
+        this.tipoDocumento = tipoDocumento;
+        this.password = password;
+        this.telefono = telefono;
+        this.fechaRegistro = fechaRegistro;
+        this.ultimoAcceso = ultimoAcceso;
+        this.estado = estado;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    // Getters y Setters
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
     }
 
     public String getNombre() {
@@ -90,20 +82,20 @@ public class UserDTO {
         this.documento = documento;
     }
 
-    public Integer getTipoDocumentoId() {
-        return tipoDocumentoId;
+    public TipoDocumento getTipoDocumento() {
+        return tipoDocumento;
     }
 
-    public void setTipoDocumentoId(Integer tipoDocumentoId) {
-        this.tipoDocumentoId = tipoDocumentoId;
+    public void setTipoDocumento(TipoDocumentoDTO tipoDocumento) {
+        this.tipoDocumento = tipoDocumento;
     }
 
-    public String getTipoDocumentoNombre() {
-        return tipoDocumentoNombre;
+    public String getPassword() {
+        return password;
     }
 
-    public void setTipoDocumentoNombre(String tipoDocumentoNombre) {
-        this.tipoDocumentoNombre = tipoDocumentoNombre;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getTelefono() {
@@ -130,35 +122,37 @@ public class UserDTO {
         this.ultimoAcceso = ultimoAcceso;
     }
 
-    public Integer getEstadoId() {
-        return estadoId;
+    public EstadoDTO getEstado() {
+        return estado;
     }
 
-    public void setEstadoId(Integer estadoId) {
-        this.estadoId = estadoId;
+    public void setEstado(EstadoDTO estado) {
+        this.estado = estado;
     }
 
-    public String getEstadoNombre() {
-        return estadoNombre;
+    // equals y hashCode
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDTO that = (UserDTO) o;
+        return Objects.equals(usuarioId, that.usuarioId);
     }
 
-    public void setEstadoNombre(String estadoNombre) {
-        this.estadoNombre = estadoNombre;
+    @Override
+    public int hashCode() {
+        return Objects.hash(usuarioId);
     }
 
-    public List<Integer> getRolesIds() {
-        return rolesIds;
-    }
-
-    public void setRolesIds(List<Integer> rolesIds) {
-        this.rolesIds = rolesIds;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public String toString() {
+        return "UsuarioDTO{" +
+                "usuarioId=" + usuarioId +
+                ", nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", email='" + email + '\'' +
+                ", documento='" + documento + '\'' +
+                ", fechaRegistro=" + fechaRegistro +
+                '}';
     }
 }
