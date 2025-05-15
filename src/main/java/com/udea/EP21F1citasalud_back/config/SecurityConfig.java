@@ -25,8 +25,9 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/api/auth/**",
-                                "/api/usuarios**" // Corrige: agrega la barra inicial
+                                "/auth/**",
+                                "/usuarios",
+                                "/usuarios/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
