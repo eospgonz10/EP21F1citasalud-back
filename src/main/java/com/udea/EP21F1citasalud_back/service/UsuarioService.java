@@ -7,6 +7,7 @@ import com.udea.EP21F1citasalud_back.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,11 +18,13 @@ public class UsuarioService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsuarioService(UserRepository userRepository, UserMapper userMapper) {
+    public UsuarioService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -51,10 +54,13 @@ public class UsuarioService {
      * @return DTO del usuario creado
      */
     public UserDTO createUser(UserDTO usuarioDTO) {
-        // Aseguramos que no tenga ID para crear uno nuevo
         usuarioDTO.setUsuarioId(null);
 
         User usuario = userMapper.toEntity(usuarioDTO);
+
+        // Hashear la contraseña antes de guardar
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+
         usuario = userRepository.save(usuario);
 
         return userMapper.toDto(usuario);
@@ -70,6 +76,12 @@ public class UsuarioService {
         return userRepository.findById(id)
                 .map(usuario -> {
                     User usuarioActualizado = userMapper.updateEntityFromDto(usuario, usuarioDTO);
+
+                    // Si el DTO trae una nueva contraseña, la hasheamos
+                    if (usuarioDTO.getPassword() != null && !usuarioDTO.getPassword().isEmpty()) {
+                        usuarioActualizado.setPassword(passwordEncoder.encode(usuarioDTO.getPassword()));
+                    }
+
                     usuarioActualizado = userRepository.save(usuarioActualizado);
                     return userMapper.toDto(usuarioActualizado);
                 });

@@ -1,33 +1,28 @@
 package com.udea.EP21F1citasalud_back.DTO;
 
-
-import com.udea.EP21F1citasalud_back.entity.TipoDocumento;
-
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class UserDTO {
 
-    private Long usuarioId;
+    private Long usuarioId; // No incluir en el JSON de creación
     private String nombre;
     private String apellido;
     private String email;
     private String documento;
-    private TipoDocumentoDTO tipoDocumento;
+    private Long tipoDocumento; // Solo el ID
     private String password;
     private String telefono;
     private LocalDate fechaRegistro;
     private LocalDate ultimoAcceso;
-    private EstadoDTO estado;
+    private Long estado; // Solo el ID
 
-    // Constructores
-    public UserDTO() {
-    }
+    public UserDTO() {}
 
     public UserDTO(Long usuarioId, String nombre, String apellido, String email,
-                      String documento, TipoDocumentoDTO tipoDocumento, String password,
-                      String telefono, LocalDate fechaRegistro, LocalDate ultimoAcceso,
-                      EstadoDTO estado) {
+                   String documento, Long tipoDocumento, String password,
+                   String telefono, LocalDate fechaRegistro, LocalDate ultimoAcceso,
+                   Long estado) {
         this.usuarioId = usuarioId;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -41,7 +36,6 @@ public class UserDTO {
         this.estado = estado;
     }
 
-    // Getters y Setters
     public Long getUsuarioId() {
         return usuarioId;
     }
@@ -82,11 +76,11 @@ public class UserDTO {
         this.documento = documento;
     }
 
-    public TipoDocumento getTipoDocumento() {
+    public Long getTipoDocumento() {
         return tipoDocumento;
     }
 
-    public void setTipoDocumento(TipoDocumentoDTO tipoDocumento) {
+    public void setTipoDocumento(Long tipoDocumento) {
         this.tipoDocumento = tipoDocumento;
     }
 
@@ -122,21 +116,20 @@ public class UserDTO {
         this.ultimoAcceso = ultimoAcceso;
     }
 
-    public EstadoDTO getEstado() {
+    public Long getEstado() {
         return estado;
     }
 
-    public void setEstado(EstadoDTO estado) {
+    public void setEstado(Long estado) {
         this.estado = estado;
     }
 
-    // equals y hashCode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserDTO that = (UserDTO) o;
-        return Objects.equals(usuarioId, that.usuarioId);
+        UserDTO userDTO = (UserDTO) o;
+        return Objects.equals(usuarioId, userDTO.usuarioId);
     }
 
     @Override
@@ -146,13 +139,17 @@ public class UserDTO {
 
     @Override
     public String toString() {
-        return "UsuarioDTO{" +
+        return "UserDTO{" +
                 "usuarioId=" + usuarioId +
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", email='" + email + '\'' +
                 ", documento='" + documento + '\'' +
+                ", tipoDocumento=" + tipoDocumento +
+                ", telefono='" + telefono + '\'' +
                 ", fechaRegistro=" + fechaRegistro +
+                ", ultimoAcceso=" + ultimoAcceso +
+                ", estado=" + estado +
                 '}';
     }
 }
