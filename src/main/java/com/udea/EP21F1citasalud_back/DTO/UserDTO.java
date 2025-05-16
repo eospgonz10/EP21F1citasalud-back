@@ -10,19 +10,19 @@ public class UserDTO {
     private String apellido;
     private String email;
     private String documento;
-    private Long tipoDocumento; // Solo el ID
+    private Integer tipoDocumento; // Solo el ID
     private String password;
     private String telefono;
     private LocalDate fechaRegistro;
     private LocalDate ultimoAcceso;
-    private Long estado; // Solo el ID
+    private Integer estado; // Solo el ID
 
     public UserDTO() {}
 
     public UserDTO(Long usuarioId, String nombre, String apellido, String email,
-                   String documento, Long tipoDocumento, String password,
+                   String documento, Integer tipoDocumento, String password,
                    String telefono, LocalDate fechaRegistro, LocalDate ultimoAcceso,
-                   Long estado) {
+                   Integer estado) {
         this.usuarioId = usuarioId;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -76,11 +76,11 @@ public class UserDTO {
         this.documento = documento;
     }
 
-    public Long getTipoDocumento() {
+    public Integer getTipoDocumento() {
         return tipoDocumento;
     }
 
-    public void setTipoDocumento(Long tipoDocumento) {
+    public void setTipoDocumento(Integer tipoDocumento) {
         this.tipoDocumento = tipoDocumento;
     }
 
@@ -116,11 +116,11 @@ public class UserDTO {
         this.ultimoAcceso = ultimoAcceso;
     }
 
-    public Long getEstado() {
+    public Integer getEstado() {
         return estado;
     }
 
-    public void setEstado(Long estado) {
+    public void setEstado(Integer estado) {
         this.estado = estado;
     }
 

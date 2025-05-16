@@ -31,13 +31,17 @@ public class UserMapper {
         dto.setApellido(usuario.getApellido());
         dto.setEmail(usuario.getEmail());
         dto.setDocumento(usuario.getDocumento());
-        dto.setTipoDocumento(usuario.getTipoDocumento() != null ? Long.valueOf(usuario.getTipoDocumento().getIdTipoDocumento()) : null
+        dto.setTipoDocumento(usuario.getTipoDocumento() != null ? 
+            (usuario.getTipoDocumento().getIdTipoDocumento() != null ? usuario.getTipoDocumento().getIdTipoDocumento() : null)
+            : null
         );
         dto.setPassword(usuario.getPassword());
         dto.setTelefono(usuario.getTelefono());
         dto.setFechaRegistro(usuario.getFechaRegistro());
         dto.setUltimoAcceso(usuario.getUltimoAcceso());
-        dto.setEstado(usuario.getEstado() != null ? Long.valueOf(usuario.getEstado().getIdEstado()) : null
+        dto.setEstado(usuario.getEstado() != null ? 
+            (usuario.getEstado().getIdEstado() != null ? usuario.getEstado().getIdEstado() : null)
+            : null
         );
         return dto;
     }
@@ -74,6 +78,7 @@ public class UserMapper {
 
         return usuario;
     }
+
     public User updateEntityFromDto(User usuario, UserDTO usuarioDTO) {
         if (usuarioDTO.getNombre() != null) usuario.setNombre(usuarioDTO.getNombre());
         if (usuarioDTO.getApellido() != null) usuario.setApellido(usuarioDTO.getApellido());

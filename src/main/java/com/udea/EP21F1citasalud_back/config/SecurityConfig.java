@@ -17,20 +17,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> {}) // <-- Habilita CORS aquí
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(
-                                "/doc/**",
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/auth/**",
-                                "/usuarios",
-                                "/usuarios/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                );
+            .cors(cors -> {})
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(authz -> authz
+                .anyRequest().permitAll()
+            );
         return http.build();
     }
 }
