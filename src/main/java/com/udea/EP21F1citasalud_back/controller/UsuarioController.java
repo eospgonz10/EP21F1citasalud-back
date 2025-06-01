@@ -1,6 +1,6 @@
 package com.udea.EP21F1citasalud_back.controller;
 
-import com.udea.EP21F1citasalud_back.DTO.UserDTO;
+import com.udea.EP21F1citasalud_back.DTO.UsuarioDTO;
 import com.udea.EP21F1citasalud_back.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,9 +37,9 @@ public class UsuarioController {
     @Operation(summary = "Obtener todos los usuarios", description = "Retorna una lista de todos los usuarios registrados en el sistema")
     @ApiResponse(responseCode = "200", description = "Operación exitosa",
             content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = UserDTO.class)))
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> usuarios = usuarioService.getAllUsers();
+                    schema = @Schema(implementation = UsuarioDTO.class)))
+    public ResponseEntity<List<UsuarioDTO>> getAllUsers() {
+        List<UsuarioDTO> usuarios = usuarioService.getAllUsers();
         return ResponseEntity.ok(usuarios);
     }
 
@@ -53,11 +53,11 @@ public class UsuarioController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario encontrado",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDTO.class))),
+                            schema = @Schema(implementation = UsuarioDTO.class))),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
                     content = @Content)
     })
-    public ResponseEntity<UserDTO> getUserById(
+    public ResponseEntity<UsuarioDTO> getUserById(
             @Parameter(description = "ID del usuario a buscar", required = true)
             @PathVariable Long id) {
         return usuarioService.getUserById(id)
@@ -75,14 +75,14 @@ public class UsuarioController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario creado correctamente",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDTO.class))),
+                            schema = @Schema(implementation = UsuarioDTO.class))),
             @ApiResponse(responseCode = "400", description = "Datos de usuario inválidos",
                     content = @Content)
     })
-    public ResponseEntity<UserDTO> createUser(
+    public ResponseEntity<UsuarioDTO> createUser(
             @Parameter(description = "Datos del usuario a crear", required = true)
-            @RequestBody UserDTO usuarioDTO) {
-        UserDTO nuevoUsuario = usuarioService.createUser(usuarioDTO);
+            @RequestBody UsuarioDTO usuarioDTO) {
+        UsuarioDTO nuevoUsuario = usuarioService.createUser(usuarioDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
     }
 
@@ -97,17 +97,17 @@ public class UsuarioController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDTO.class))),
+                            schema = @Schema(implementation = UsuarioDTO.class))),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
                     content = @Content),
             @ApiResponse(responseCode = "400", description = "Datos de usuario inválidos",
                     content = @Content)
     })
-    public ResponseEntity<UserDTO> updateUser(
+    public ResponseEntity<UsuarioDTO> updateUser(
             @Parameter(description = "ID del usuario a actualizar", required = true)
             @PathVariable Long id,
             @Parameter(description = "Nuevos datos del usuario", required = true)
-            @RequestBody UserDTO usuarioDTO) {
+            @RequestBody UsuarioDTO usuarioDTO) {
         return usuarioService.updateUser(id, usuarioDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

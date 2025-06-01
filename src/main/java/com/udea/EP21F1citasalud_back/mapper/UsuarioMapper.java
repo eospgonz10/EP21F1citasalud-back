@@ -1,7 +1,7 @@
 package com.udea.EP21F1citasalud_back.mapper;
 
-import com.udea.EP21F1citasalud_back.DTO.UserDTO;
-import com.udea.EP21F1citasalud_back.entity.User;
+import com.udea.EP21F1citasalud_back.DTO.UsuarioDTO;
+import com.udea.EP21F1citasalud_back.entity.Usuario;
 import com.udea.EP21F1citasalud_back.entity.Estado;
 import com.udea.EP21F1citasalud_back.entity.TipoDocumento;
 import com.udea.EP21F1citasalud_back.repository.EstadoRepository;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class UserMapper {
+public class UsuarioMapper {
 
     @Autowired
     private EstadoRepository estadoRepository;
@@ -21,11 +21,11 @@ public class UserMapper {
     @Autowired
     private TipoDocumentoRepository tipoDocumentoRepository;
 
-    public UserDTO toDto(User usuario) {
+    public UsuarioDTO toDto(Usuario usuario) {
         if (usuario == null) {
             return null;
         }
-        UserDTO dto = new UserDTO();
+        UsuarioDTO dto = new UsuarioDTO();
         dto.setUsuarioId(usuario.getUsuarioId());
         dto.setNombre(usuario.getNombre());
         dto.setApellido(usuario.getApellido());
@@ -46,11 +46,11 @@ public class UserMapper {
         return dto;
     }
 
-    public User toEntity(UserDTO usuarioDTO) {
+    public Usuario toEntity(UsuarioDTO usuarioDTO) {
         if (usuarioDTO == null) {
             return null;
         }
-        User usuario = new User();
+        Usuario usuario = new Usuario();
         usuario.setUsuarioId(usuarioDTO.getUsuarioId());
         usuario.setNombre(usuarioDTO.getNombre());
         usuario.setApellido(usuarioDTO.getApellido());
@@ -79,7 +79,7 @@ public class UserMapper {
         return usuario;
     }
 
-    public User updateEntityFromDto(User usuario, UserDTO usuarioDTO) {
+    public Usuario updateEntityFromDto(Usuario usuario, UsuarioDTO usuarioDTO) {
         if (usuarioDTO.getNombre() != null) usuario.setNombre(usuarioDTO.getNombre());
         if (usuarioDTO.getApellido() != null) usuario.setApellido(usuarioDTO.getApellido());
         if (usuarioDTO.getEmail() != null) usuario.setEmail(usuarioDTO.getEmail());
@@ -106,7 +106,7 @@ public class UserMapper {
         return usuario;
     }
 
-    public List<UserDTO> toDtoList(List<User> usuarios) {
+    public List<UsuarioDTO> toDtoList(List<Usuario> usuarios) {
         if (usuarios == null) {
             return null;
         }

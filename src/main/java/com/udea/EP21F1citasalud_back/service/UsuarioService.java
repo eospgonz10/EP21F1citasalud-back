@@ -1,9 +1,9 @@
 package com.udea.EP21F1citasalud_back.service;
 
-import com.udea.EP21F1citasalud_back.DTO.UserDTO;
-import com.udea.EP21F1citasalud_back.entity.User;
-import com.udea.EP21F1citasalud_back.mapper.UserMapper;
-import com.udea.EP21F1citasalud_back.repository.UserRepository;
+import com.udea.EP21F1citasalud_back.DTO.UsuarioDTO;
+import com.udea.EP21F1citasalud_back.entity.Usuario;
+import com.udea.EP21F1citasalud_back.mapper.UsuarioMapper;
+import com.udea.EP21F1citasalud_back.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +16,14 @@ import java.util.Optional;
 @Transactional
 public class UsuarioService {
 
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final UsuarioRepository userRepository;
+    private final UsuarioMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsuarioService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
+    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder) {
+        this.userRepository = usuarioRepository;
+        this.userMapper = usuarioMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -32,8 +32,8 @@ public class UsuarioService {
      * @return Lista de DTOs de usuarios
      */
     @Transactional(readOnly = true)
-    public List<UserDTO> getAllUsers() {
-        List<User> usuarios = userRepository.findAll();
+    public List<UsuarioDTO> getAllUsers() {
+        List<Usuario> usuarios = userRepository.findAll();
         return userMapper.toDtoList(usuarios);
     }
 
@@ -43,7 +43,7 @@ public class UsuarioService {
      * @return DTO del usuario encontrado o Optional vacío si no existe
      */
     @Transactional(readOnly = true)
-    public Optional<UserDTO> getUserById(Long id) {
+    public Optional<UsuarioDTO> getUserById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::toDto);
     }
@@ -53,10 +53,10 @@ public class UsuarioService {
      * @param usuarioDTO DTO con los datos del usuario a crear
      * @return DTO del usuario creado
      */
-    public UserDTO createUser(UserDTO usuarioDTO) {
+    public UsuarioDTO createUser(UsuarioDTO usuarioDTO) {
         usuarioDTO.setUsuarioId(null);
 
-        User usuario = userMapper.toEntity(usuarioDTO);
+        Usuario usuario = userMapper.toEntity(usuarioDTO);
 
         // Hashear la contraseña antes de guardar
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
@@ -72,10 +72,10 @@ public class UsuarioService {
      * @param usuarioDTO DTO con los nuevos datos
      * @return DTO del usuario actualizado o Optional vacío si no existe
      */
-    public Optional<UserDTO> updateUser(Long id, UserDTO usuarioDTO) {
+    public Optional<UsuarioDTO> updateUser(Long id, UsuarioDTO usuarioDTO) {
         return userRepository.findById(id)
                 .map(usuario -> {
-                    User usuarioActualizado = userMapper.updateEntityFromDto(usuario, usuarioDTO);
+                    Usuario usuarioActualizado = userMapper.updateEntityFromDto(usuario, usuarioDTO);
 
                     // Si el DTO trae una nueva contraseña, la hasheamos
                     if (usuarioDTO.getPassword() != null && !usuarioDTO.getPassword().isEmpty()) {

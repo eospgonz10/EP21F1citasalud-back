@@ -1,55 +1,41 @@
-package com.udea.EP21F1citasalud_back.entity;
+package com.udea.EP21F1citasalud_back.DTO;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
 
-@Entity
-@Table(name = "usuario")
-public class User {
+public class UsuarioDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "usuario_id")
-    private Long usuarioId;
-
-    @Column(name = "nombre", length = 80, nullable = false)
+    private Long usuarioId; // No incluir en el JSON de creación
     private String nombre;
-
-    @Column(name = "apellido", length = 50, nullable = false)
     private String apellido;
-
-    @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
-
-    @Column(name = "documento", length = 15, nullable = false)
     private String documento;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tipo_documento", nullable = false)
-    private TipoDocumento tipoDocumento;
-
-    @Column(name = "password", length = 80, nullable = false)
+    private Integer tipoDocumento; // Solo el ID
     private String password;
-
-    @Column(name = "telefono", length = 20)
     private String telefono;
-
-    @Column(name = "fecha_registro", nullable = false)
     private LocalDate fechaRegistro;
-
-    @Column(name = "ultimo_acceso")
     private LocalDate ultimoAcceso;
+    private Integer estado; // Solo el ID
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_estado", nullable = false)
-    private Estado estado;
+    public UsuarioDTO() {}
 
-    // Constructores
-    public User() {
+    public UsuarioDTO(Long usuarioId, String nombre, String apellido, String email,
+                      String documento, Integer tipoDocumento, String password,
+                      String telefono, LocalDate fechaRegistro, LocalDate ultimoAcceso,
+                      Integer estado) {
+        this.usuarioId = usuarioId;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.documento = documento;
+        this.tipoDocumento = tipoDocumento;
+        this.password = password;
+        this.telefono = telefono;
+        this.fechaRegistro = fechaRegistro;
+        this.ultimoAcceso = ultimoAcceso;
+        this.estado = estado;
     }
 
-    // Getters y Setters
     public Long getUsuarioId() {
         return usuarioId;
     }
@@ -90,11 +76,11 @@ public class User {
         this.documento = documento;
     }
 
-    public TipoDocumento getTipoDocumento() {
+    public Integer getTipoDocumento() {
         return tipoDocumento;
     }
 
-    public void setTipoDocumento(TipoDocumento tipoDocumento) {
+    public void setTipoDocumento(Integer tipoDocumento) {
         this.tipoDocumento = tipoDocumento;
     }
 
@@ -130,21 +116,20 @@ public class User {
         this.ultimoAcceso = ultimoAcceso;
     }
 
-    public Estado getEstado() {
+    public Integer getEstado() {
         return estado;
     }
 
-    public void setEstado(Estado estado) {
+    public void setEstado(Integer estado) {
         this.estado = estado;
     }
 
-    // equals y hashCode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User usuario = (User) o;
-        return Objects.equals(usuarioId, usuario.usuarioId);
+        UsuarioDTO usuarioDTO = (UsuarioDTO) o;
+        return Objects.equals(usuarioId, usuarioDTO.usuarioId);
     }
 
     @Override
@@ -154,13 +139,17 @@ public class User {
 
     @Override
     public String toString() {
-        return "Usuario{" +
+        return "UserDTO{" +
                 "usuarioId=" + usuarioId +
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", email='" + email + '\'' +
                 ", documento='" + documento + '\'' +
+                ", tipoDocumento=" + tipoDocumento +
+                ", telefono='" + telefono + '\'' +
                 ", fechaRegistro=" + fechaRegistro +
+                ", ultimoAcceso=" + ultimoAcceso +
+                ", estado=" + estado +
                 '}';
     }
 }
