@@ -1,3 +1,4 @@
+-- Inicialización de tablas base
 INSERT INTO estado (id_estado, nombre_estado, descripcion) VALUES
                                                                (1, 'activo', 'Usuario activo'),
                                                                (2, 'deshabilitado', 'deshabilitado activo');

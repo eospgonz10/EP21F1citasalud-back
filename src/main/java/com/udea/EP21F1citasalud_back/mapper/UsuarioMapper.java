@@ -4,8 +4,10 @@ import com.udea.EP21F1citasalud_back.DTO.UsuarioDTO;
 import com.udea.EP21F1citasalud_back.entity.Usuario;
 import com.udea.EP21F1citasalud_back.entity.Estado;
 import com.udea.EP21F1citasalud_back.entity.TipoDocumento;
+import com.udea.EP21F1citasalud_back.entity.Rol;
 import com.udea.EP21F1citasalud_back.repository.EstadoRepository;
 import com.udea.EP21F1citasalud_back.repository.TipoDocumentoRepository;
+import com.udea.EP21F1citasalud_back.repository.RolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,9 @@ public class UsuarioMapper {
 
     @Autowired
     private TipoDocumentoRepository tipoDocumentoRepository;
+    
+    @Autowired
+    private RolRepository rolRepository;
 
     public UsuarioDTO toDto(Usuario usuario) {
         if (usuario == null) {
@@ -41,6 +46,10 @@ public class UsuarioMapper {
         dto.setUltimoAcceso(usuario.getUltimoAcceso());
         dto.setEstado(usuario.getEstado() != null ? 
             (usuario.getEstado().getIdEstado() != null ? usuario.getEstado().getIdEstado() : null)
+            : null
+        );
+        dto.setRolId(usuario.getRol() != null ? 
+            (usuario.getRol().getRolId() != null ? usuario.getRol().getRolId() : null)
             : null
         );
         return dto;
@@ -75,6 +84,14 @@ public class UsuarioMapper {
         } else {
             usuario.setEstado(null);
         }
+        
+        // Asignar rol al usuario
+        if (usuarioDTO.getRolId() != null) {
+            Rol rol = rolRepository.findById(usuarioDTO.getRolId()).orElse(null);
+            usuario.setRol(rol);
+        } else {
+            usuario.setRol(null);
+        }
 
         return usuario;
     }
@@ -100,6 +117,13 @@ public class UsuarioMapper {
         if (usuarioDTO.getEstado() != null) {
             usuario.setEstado(
                     estadoRepository.findById(usuarioDTO.getEstado()).orElse(null)
+            );
+        }
+        
+        // Actualiza rol si viene en el DTO
+        if (usuarioDTO.getRolId() != null) {
+            usuario.setRol(
+                    rolRepository.findById(usuarioDTO.getRolId()).orElse(null)
             );
         }
 

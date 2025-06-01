@@ -86,4 +86,28 @@ public class UsuarioService {
                     return userMapper.toDto(usuarioActualizado);
                 });
     }
+
+    /**
+     * Obtiene un usuario por su email
+     * @param email Email del usuario a buscar
+     * @return DTO del usuario encontrado o Optional vacío si no existe
+     */
+    @Transactional(readOnly = true)
+    public Optional<UsuarioDTO> getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(userMapper::toDto);
+    }
+
+    /**
+     * Verifica si las credenciales de un usuario son válidas
+     * @param email Email del usuario
+     * @param password Contraseña sin encriptar
+     * @return true si las credenciales son válidas, false en caso contrario
+     */
+    @Transactional(readOnly = true)
+    public boolean validateCredentials(String email, String password) {
+        return userRepository.findByEmail(email)
+                .map(usuario -> passwordEncoder.matches(password, usuario.getPassword()))
+                .orElse(false);
+    }
 }

@@ -16,13 +16,14 @@ public class UsuarioDTO {
     private LocalDate fechaRegistro;
     private LocalDate ultimoAcceso;
     private Integer estado; // Solo el ID
+    private Integer rolId; // Solo el ID del rol
 
     public UsuarioDTO() {}
 
     public UsuarioDTO(Long usuarioId, String nombre, String apellido, String email,
                       String documento, Integer tipoDocumento, String password,
                       String telefono, LocalDate fechaRegistro, LocalDate ultimoAcceso,
-                      Integer estado) {
+                      Integer estado, Integer rolId) {
         this.usuarioId = usuarioId;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -34,6 +35,7 @@ public class UsuarioDTO {
         this.fechaRegistro = fechaRegistro;
         this.ultimoAcceso = ultimoAcceso;
         this.estado = estado;
+        this.rolId = rolId;
     }
 
     public Long getUsuarioId() {
@@ -124,6 +126,14 @@ public class UsuarioDTO {
         this.estado = estado;
     }
 
+    public Integer getRolId() {
+        return rolId;
+    }
+
+    public void setRolId(Integer rolId) {
+        this.rolId = rolId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -150,6 +160,7 @@ public class UsuarioDTO {
                 ", fechaRegistro=" + fechaRegistro +
                 ", ultimoAcceso=" + ultimoAcceso +
                 ", estado=" + estado +
+                ", rolId=" + rolId +
                 '}';
     }
 }
