@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 
@@ -20,26 +23,45 @@ public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    // Clave secreta para firmar el token
-    private static final String JWT_SECRET = "citasalud2025clavesupersecretajwttokenaudmuchoscaracteres2025";
+    @Value("${jwt.secret}")
+    private String jwtSecret;
     
-    // 24 horas en milisegundos
-    private static final int JWT_EXPIRATION_MS = 86400000;
+    // Tiempo de expiración en milisegundos
+    @Value("${jwt.expirationMs}")
+    private int jwtExpirationMs;
 
     // Generar el token JWT a partir de los datos del usuario autenticado
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
+        
+        // Extraer el rol y permisos del usuario utilizando streams
+        String role = userPrincipal.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .filter(auth -> auth.startsWith("ROLE_"))
+                .map(auth -> auth.substring(5)) // Eliminar el prefijo "ROLE_"
+                .findFirst()
+                .orElse("");
+                
+        List<String> permissions = userPrincipal.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .filter(auth -> !auth.startsWith("ROLE_"))
+                .collect(java.util.stream.Collectors.toList());
+        
         return Jwts.builder()
                 .subject(userPrincipal.getUsername())
+                .claim("id", userPrincipal.getId())
+                .claim("nombre", userPrincipal.getNombre())
+                .claim("apellido", userPrincipal.getApellido())
+                .claim("role", role)
+                .claim("permisos", permissions)
                 .issuedAt(new Date())
-                .expiration(new Date((new Date()).getTime() + JWT_EXPIRATION_MS))
+                .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key())
                 .compact();
     }
 
     private SecretKey key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(JWT_SECRET));
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
     // Extraer el nombre de usuario del token JWT
@@ -50,6 +72,37 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+    }
+    
+    // Obtener el ID del usuario desde el JWT
+    public Long getUserIdFromJwtToken(String token) {
+        return Jwts.parser()
+                .verifyWith(key())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("id", Long.class);
+    }
+    
+    // Obtener el rol del usuario desde el JWT
+    public String getRoleFromJwtToken(String token) {
+        return Jwts.parser()
+                .verifyWith(key())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
+    }
+    
+    // Obtener los permisos del usuario desde el JWT
+    @SuppressWarnings("unchecked")
+    public List<String> getPermissionsFromJwtToken(String token) {
+        return Jwts.parser()
+                .verifyWith(key())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("permisos", List.class);
     }
 
     // Validar el token JWT

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,12 +50,15 @@ public class UsuarioController {
      * @return Usuario encontrado o status 404 si no existe
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Obtener usuario por ID", description = "Retorna un usuario según el ID proporcionado")
+    @PreAuthorize("authentication.principal.id == #id or hasRole('ADMINISTRADOR') or hasAuthority('VISUALIZAR_TODOS_USUARIOS')")
+    @Operation(summary = "Obtener usuario por ID", description = "Retorna un usuario según el ID proporcionado. Solo el propio usuario o un administrador pueden acceder a estos datos.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario encontrado",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = UsuarioDTO.class))),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "No autorizado para ver este usuario",
                     content = @Content)
     })
     public ResponseEntity<UsuarioDTO> getUserById(
@@ -93,7 +97,8 @@ public class UsuarioController {
      * @return Usuario actualizado o status 404 si no existe
      */
     @PutMapping("/{id}")
-    @Operation(summary = "Actualizar un usuario", description = "Actualiza los datos de un usuario existente según su ID")
+    @PreAuthorize("authentication.principal.id == #id or hasRole('ADMINISTRADOR')")
+    @Operation(summary = "Actualizar un usuario", description = "Actualiza los datos de un usuario existente según su ID. Solo el propio usuario o un administrador pueden realizar esta operación.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente",
                     content = @Content(mediaType = "application/json",
@@ -101,6 +106,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
                     content = @Content),
             @ApiResponse(responseCode = "400", description = "Datos de usuario inválidos",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "No autorizado para actualizar este usuario",
                     content = @Content)
     })
     public ResponseEntity<UsuarioDTO> updateUser(

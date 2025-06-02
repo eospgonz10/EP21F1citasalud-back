@@ -32,7 +32,7 @@ public class RolController {
      * @return Lista de roles
      */
     @GetMapping
-    @PreAuthorize("hasAuthority('ASIGNAR_ROLES')")
+    @PreAuthorize("hasAuthority('ASIGNAR_ROLES') or hasRole('ADMINISTRADOR')")
     @Operation(summary = "Obtener todos los roles", description = "Retorna una lista de todos los roles registrados en el sistema")
     @ApiResponse(responseCode = "200", description = "Operación exitosa",
             content = @Content(mediaType = "application/json",
@@ -48,7 +48,7 @@ public class RolController {
      * @return Rol encontrado o status 404 si no existe
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ASIGNAR_ROLES')")
+    @PreAuthorize("hasAuthority('ASIGNAR_ROLES') or hasRole('ADMINISTRADOR')")
     @Operation(summary = "Obtener un rol por ID", description = "Retorna un rol específico según su ID")
     @ApiResponse(responseCode = "200", description = "Operación exitosa",
             content = @Content(mediaType = "application/json",
