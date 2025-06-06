@@ -75,6 +75,7 @@ public class UsuarioController {
      * @return Usuario creado con status 201
      */
     @PostMapping
+    @PreAuthorize("hasRole('ADMINISTRADOR') or hasAuthority('CREAR_USUARIO')")
     @Operation(summary = "Crear un nuevo usuario", description = "Registra un nuevo usuario en el sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario creado correctamente",

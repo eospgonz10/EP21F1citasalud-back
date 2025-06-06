@@ -97,7 +97,7 @@ public class SecurityConfig {
                 // Rutas públicas
                 .requestMatchers("/auth/**").permitAll()
                 // Permitir acceso a todas las rutas relacionadas con Swagger
-                .requestMatchers("/doc/**", "/swagger-ui/**", "/swagger-ui.html", "/api/v3/api-docs/**", "/webjars/**").permitAll()
+                .requestMatchers("/doc/**", "/swagger-ui/**", "/swagger-ui.html", "/api/v3/api-docs/**", "/webjars/**").permitAll()                
                 // Resto de rutas requieren autenticación
                 .anyRequest().authenticated()
             )

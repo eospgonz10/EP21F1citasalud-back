@@ -37,7 +37,7 @@ public class OpenAPIConfig {
 
         Server server = new Server();
         server.setUrl(serverUrl);
-        server.setDescription("Servidor configurado");
+        server.setDescription("Servidor de API CitaSalud");
 
         // Definir el esquema de seguridad JWT
         SecurityScheme securityScheme = new SecurityScheme()
