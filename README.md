@@ -85,13 +85,6 @@ El proyecto implementa HATEOAS para facilitar la navegación y descubrimiento de
 
 El proyecto utiliza Spring Actuator para monitoreo, administración y descubrimiento de endpoints. Actuator proporciona varios endpoints HTTP para interactuar con la aplicación en tiempo de ejecución.
 
-### Endpoints disponibles
-
-| Endpoint | Descripción |
-|----------|-------------|
-| `/api/actuator/health` | Muestra información sobre el estado de la aplicación |
-| `/api/actuator/info` | Muestra información general sobre la aplicación |
-| `/api/actuator/mappings` | Muestra todos los endpoints disponibles en la aplicación |
 
 ### Configuración
 
@@ -129,6 +122,87 @@ La configuración de Swagger soporta múltiples servidores:
 2. Un servidor de desarrollo local (`http://localhost:8080/api`)
 
 Esto permite que la documentación funcione correctamente tanto en entornos de desarrollo como de producción.
+
+## Monitoreo con Prometheus y Grafana
+
+El proyecto incluye configuración para monitoreo de métricas usando Prometheus y Grafana. Estas herramientas permiten visualizar el rendimiento de la aplicación, uso de recursos y comportamiento en tiempo real.
+
+### Inicio Rápido de Monitoreo
+
+Para iniciar los servicios de monitoreo:
+
+```bash
+# Ejecuta el script de inicio 
+./start-monitoring.sh
+```
+
+Este comando iniciará:
+1. Prometheus - accesible en http://localhost:9090
+2. Grafana - accesible en http://localhost:3000 (usuario: admin, contraseña: admin)
+
+### Acceso a Métricas
+
+* **Actuator Endpoints**: http://localhost:8080/actuator
+* **Métricas Prometheus**: http://localhost:8080/actuator/prometheus
+
+### Dashboard de Spring Boot
+
+Grafana viene preconfigurado con un dashboard para Spring Boot (ID 4701) que incluye:
+- Métricas JVM (memoria, CPU)
+- Estadísticas de HTTP (solicitudes, tiempos de respuesta)
+- Estado de la aplicación
+- Métricas de caché y conexiones
+
+### Configuración Manual
+
+Si necesitas iniciar los servicios manualmente:
+
+```bash
+docker-compose -f docker-compose.monitoring.yml up -d
+```
+
+### Compatibilidad con Render
+
+Los archivos de configuración están preparados para desplegar en Render:
+- `render.yaml` - Configuración para servicios en Render
+- `Dockerfile.prometheus` y `Dockerfile.grafana` - Imágenes específicas para Render
+
+## Configuración para Diferentes Entornos
+
+### Despliegue en GitHub Codespaces
+
+Para ejecutar Prometheus y Grafana en GitHub Codespaces:
+
+1. **Configura tu Codespace para Docker**:
+   Consulta las instrucciones detalladas en el archivo [CODESPACES_SETUP.md](CODESPACES_SETUP.md)
+   
+2. **Verifica la configuración de Docker**:
+   ```bash
+   # Verificar si Docker está disponible
+   ./install-docker-codespaces.sh
+   ```
+
+3. **Inicia los servicios de monitoreo**:
+   ```bash
+   ./start-monitoring.sh
+   ```
+
+4. **Accede a los servicios**:
+   - Para acceder a Grafana o Prometheus, ve a la pestaña "PORTS" en Codespaces y haz clic en el link junto a los puertos 3000 (Grafana) y 9090 (Prometheus).
+
+### Despliegue en Render
+
+Para desplegar en Render:
+
+1. **Prepara el despliegue**:
+   ```bash
+   ./deploy-to-render.sh
+   ```
+
+2. **Sigue las instrucciones** mostradas por el script para completar el despliegue en Render.
+
+3. **Consulta la documentación detallada**:
+   Para instrucciones paso a paso sobre cómo configurar los servicios en Render, consulta el archivo [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
 
 ## Solución de Problemas Comunes
 

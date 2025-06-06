@@ -1,0 +1,43 @@
+{
+  "name": "spring-boot-citasalud-devcontainer",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-spring-initializr",
+        "vscjava.vscode-spring-boot-dashboard",
+        "vscjava.vscode-spring-boot",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg"
+      ],
+      "settings": {
+        "sqltools.connections": [
+          {
+            "name": "Container database",
+            "driver": "PostgreSQL",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "database": "bd_citassalud",
+            "username": "postgres",
+            "password": "root1"
+          }
+        ],
+        "java.jdt.ls.java.home": "/docker-java-home",
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+        "java.format.settings.profile": "GoogleStyle",
+        "java.compile.nullAnalysis.mode": "automatic"
+      }
+    }
+  },
+  "forwardPorts": [8080, 5432, 9090, 3000],
+  "remoteUser": "vscode"
+}

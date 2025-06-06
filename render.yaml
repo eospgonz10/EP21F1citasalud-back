@@ -1,0 +1,52 @@
+services:
+  - type: web
+    name: citasalud-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: SERVER_PORT
+        value: 8080
+      - key: CONTEXT_PATH
+        value: ""
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JWT_EXPIRATION
+        value: 86400000
+      - key: DB_URL
+        fromDatabase:
+          name: citasalud-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: citasalud-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: citasalud-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+
+  - type: web
+    name: citasalud-prometheus
+    env: docker
+    dockerfilePath: ./Dockerfile.prometheus
+    dockerContext: .
+    plan: free
+    dependsOn:
+      - citasalud-api
+
+  - type: web
+    name: citasalud-grafana
+    env: docker
+    dockerfilePath: ./Dockerfile.grafana
+    dockerContext: .
+    plan: free
+    dependsOn:
+      - citasalud-prometheus
+
+databases:
+  - name: citasalud-db
+    plan: free

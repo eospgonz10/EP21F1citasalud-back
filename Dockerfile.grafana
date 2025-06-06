@@ -1,0 +1,17 @@
+FROM grafana/grafana:10.2.3
+
+# Copy configuration files
+COPY ./monitoring/grafana/provisioning /etc/grafana/provisioning
+
+# Set environment variables
+ENV GF_SECURITY_ADMIN_USER=admin
+ENV GF_SECURITY_ADMIN_PASSWORD=admin
+ENV GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+
+# Create dashboards directory
+RUN mkdir -p /etc/grafana/dashboards
+
+# Copy dashboard files
+COPY ./monitoring/grafana/dashboards /etc/grafana/dashboards
+
+EXPOSE 3000
