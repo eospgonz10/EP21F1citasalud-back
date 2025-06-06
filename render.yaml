@@ -1,0 +1,20 @@
+# =============================================================================
+# RENDER DEPLOYMENT CONFIGURATION
+# =============================================================================
+
+# Build Command
+# mvn clean package -DskipTests
+
+# Start Command  
+# java -jar target/EP21F1citasalud-back-0.0.1-SNAPSHOT.jar
+
+# Environment Variables necesarias en Render:
+# SPRING_PROFILES_ACTIVE=prod
+# JWT_SECRET=tu_clave_secreta_super_larga_y_segura
+# JWT_EXPIRATION=86400000
+# DATABASE_URL=postgresql://usuario:password@host:puerto/database
+# SERVER_PORT=8080
+# CONTEXT_PATH=/api
+
+# Auto-Deploy: Yes
+# Health Check Path: /api/actuator/health

@@ -1,17 +1,18 @@
-version: "3.8"
+# =============================================================================
+# DOCKER COMPOSE PARA PRODUCCIÓN LOCAL
+# =============================================================================
+version: '3.8'
 
 services:
   app:
-    build:
-      context: ..
-      dockerfile: .devcontainer/Dockerfile
-    volumes:
-      - ..:/workspace:cached
-    command: sleep infinity
-    network_mode: service:db
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - DB_URL=jdbc:postgresql://localhost:5432/bd_citassalud
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:postgresql://db:5432/bd_citassalud
       - DB_USERNAME=postgres
       - DB_PASSWORD=root1
       - JWT_SECRET=clave_secreta_super_larga_y_segura_para_jwt_tokens_2024
@@ -20,24 +21,33 @@ services:
       - CONTEXT_PATH=/api
       - SWAGGER_SERVER_URL=http://localhost:8080/api
       - PROMETHEUS_ENABLED=true
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app-network
 
   db:
     image: postgres:16
     restart: unless-stopped
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: bd_citassalud
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root1
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - app-network
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
       - "6379:6379"
+    networks:
+      - app-network
 
   prometheus:
     image: prom/prometheus:latest
@@ -46,7 +56,7 @@ services:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
+      - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -54,6 +64,8 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
+    networks:
+      - app-network
 
   grafana:
     image: grafana/grafana:latest
@@ -61,16 +73,22 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
-      - grafana-data:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
       - prometheus
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
-  postgres-data:
-  prometheus-data:
-  grafana-data:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
