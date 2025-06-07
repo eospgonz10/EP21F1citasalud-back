@@ -3,6 +3,7 @@ package com.udea.EP21F1citasalud_back.controller;
 import com.udea.EP21F1citasalud_back.DTO.AuthRequest;
 import com.udea.EP21F1citasalud_back.DTO.AuthResponse;
 import com.udea.EP21F1citasalud_back.DTO.TwoFactorRequest;
+import com.udea.EP21F1citasalud_back.entity.Estado;
 import com.udea.EP21F1citasalud_back.entity.Permiso;
 import com.udea.EP21F1citasalud_back.entity.RegistroAcceso;
 import com.udea.EP21F1citasalud_back.entity.Usuario;
@@ -53,7 +54,7 @@ public class AuthController {
     @Autowired
     private TwoFactorAuthManager twoFactorAuthManager;
 
-    @Value("${2fa.expiration.minutes:5}")
+    @Value("${2fa.expiration.minutes}")
     private int twoFactorExpirationMinutes;
 
     @PostMapping("/login")
@@ -72,23 +73,47 @@ public class AuthController {
             registrarAcceso(null, request, estado, codigoError);
             return ResponseEntity.status(401).body("Credenciales inválidas");
         }
+        // Validar estado del usuario
+        if (usuario.getEstado() == null || usuario.getEstado().getIdEstado() == null) {
+            return ResponseEntity.status(401).body("El usuario no tiene estado definido");
+        }
+        if (usuario.getEstado().getIdEstado() == 3) { // 3 = SUSPENDIDO
+            return ResponseEntity.status(403).body("El usuario está suspendido. Contacte al administrador.");
+        }
+        if (usuario.getEstado().getIdEstado() != 1) { // 1 = ACTIVO
+            return ResponseEntity.status(401).body("El usuario no está activo");
+        }
         try {
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     loginRequest.getEmail(),
                     loginRequest.getPassword()));
-            // Generar código 2FA
-            String code = String.format("%06d", new Random().nextInt(999999));
+            String code = String.format("%06d", new java.util.Random().nextInt(999999));
             twoFactorAuthManager.storeCode(loginRequest.getEmail(), code, twoFactorExpirationMinutes);
-            // Simular envío por SMS/correo (log)
             System.out.println("[2FA] Código para " + loginRequest.getEmail() + ": " + code);
             estado = "2FA_ENVIADO";
             registrarAcceso(usuario, request, estado, null);
             return ResponseEntity.ok("Código de verificación enviado. Verifique su SMS/correo (simulado en consola).");
         } catch (Exception ex) {
+            // Manejo de intentos fallidos por logs SOLO del día actual
+            java.time.LocalDateTime inicioDia = java.time.LocalDate.now().atStartOfDay();
+            long intentos = registroAccesoRepository.countByUsuarioAndEstadoAndFechaHoraAfter(
+                usuario, "CREDENCIALES_INVALIDAS", inicioDia);
+            if (intentos + 1 >= 3) {
+                // Cambiar estado a suspendido (3)
+                if (usuario.getEstado() == null || usuario.getEstado().getIdEstado() != 3) {
+                    Estado estadoSuspendido = new Estado();
+                    estadoSuspendido.setIdEstado(3);
+                    usuario.setEstado(estadoSuspendido);
+                    usuarioRepository.save(usuario);
+                }
+            }
             estado = "CREDENCIALES_INVALIDAS";
             codigoError = ex.getMessage();
             registrarAcceso(usuario, request, estado, codigoError);
+            if (usuario.getEstado() != null && usuario.getEstado().getIdEstado() == 3) {
+                return ResponseEntity.status(403).body("El usuario ha sido suspendido por múltiples intentos fallidos. Contacte al administrador.");
+            }
             return ResponseEntity.status(401).body("Credenciales inválidas");
         }
     }

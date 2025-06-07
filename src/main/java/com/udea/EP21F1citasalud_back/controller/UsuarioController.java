@@ -2,6 +2,7 @@ package com.udea.EP21F1citasalud_back.controller;
 
 import com.udea.EP21F1citasalud_back.DTO.UsuarioDTO;
 import com.udea.EP21F1citasalud_back.entity.ActividadUsuario;
+import com.udea.EP21F1citasalud_back.entity.Estado;
 import com.udea.EP21F1citasalud_back.entity.Usuario;
 import com.udea.EP21F1citasalud_back.repository.ActividadUsuarioRepository;
 import com.udea.EP21F1citasalud_back.repository.UsuarioRepository;
@@ -179,6 +180,46 @@ public class UsuarioController {
             }
         }
         return response;
+    }
+
+    /**
+     * Activar un usuario por su correo electrónico
+     * @param email El correo electrónico del usuario a activar
+     * @return Mensaje de éxito o error
+     */
+    @PostMapping("/activar-usuario")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @Operation(summary = "Activar usuario por correo", description = "Permite a un administrador activar un usuario por su email")
+    public ResponseEntity<?> activarUsuarioPorEmail(@RequestParam String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+        if (usuario == null) {
+            return ResponseEntity.status(404).body("Usuario no encontrado");
+        }
+        if (usuario.getEstado() == null || usuario.getEstado().getIdEstado() != 3) {
+            return ResponseEntity.status(400).body("El usuario no está bloqueado/suspendido");
+        }
+        Estado estadoActivo = new Estado();
+        estadoActivo.setIdEstado(1);
+        usuario.setEstado(estadoActivo);
+        usuarioRepository.save(usuario);
+
+        try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Usuario usuarioAccion = usuarioRepository.findById(userDetails.getId()).orElse(null);
+            if (usuarioAccion != null) {
+                ActividadUsuario actividad = new ActividadUsuario();
+                actividad.setUsuario(usuarioAccion);
+                actividad.setTipoActividad("DESBLOQUEO_USUARIO");
+                actividad.setDescripcion("Desbloqueo de usuario con email: " + usuario.getEmail());
+                actividad.setFechaHora(LocalDateTime.now());
+                actividad.setDetalleAdiccionales("Usuario desbloqueado por admin");
+                actividadUsuarioRepository.save(actividad);
+            }
+        } catch (Exception e) {
+            System.err.println("[LOG ACTIVIDAD] Error guardando actividad de desbloqueo: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok("Usuario activado correctamente");
     }
 
     private boolean equalsOrNull(Object a, Object b) {
