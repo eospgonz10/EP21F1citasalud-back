@@ -13,33 +13,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class SwaggerController {
     
-    /**
-     * Redirecciona la ruta raíz a la UI de Swagger
-     * @return RedirectView a la documentación de Swagger
-     */
-    @GetMapping("/")
-    public RedirectView redirectToSwaggerUI() {
-        return new RedirectView("/doc/swagger-ui/index.html");
-    }
-    
-    /**
-     * Redirecciona /doc a la UI de Swagger
-     * @return RedirectView a la documentación de Swagger
-     */
-    @GetMapping("/doc")
-    public RedirectView redirectDocToSwaggerUI() {
-        return new RedirectView("/doc/swagger-ui/index.html");
-    }
-    
-    /**
-     * Acceso directo a Swagger UI
-     * @return RedirectView a la documentación de Swagger
-     */
-    @GetMapping("/swagger")
-    public RedirectView redirectSwaggerToSwaggerUI() {
-        return new RedirectView("/doc/swagger-ui/index.html");
-    }
-    
+      
     /**
      * Controlador para pruebas de API
      */

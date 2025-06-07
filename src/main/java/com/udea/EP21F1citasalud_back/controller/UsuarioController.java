@@ -1,7 +1,5 @@
 package com.udea.EP21F1citasalud_back.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.udea.EP21F1citasalud_back.DTO.UsuarioDTO;
 import com.udea.EP21F1citasalud_back.entity.ActividadUsuario;
 import com.udea.EP21F1citasalud_back.entity.Usuario;
@@ -43,8 +41,6 @@ public class UsuarioController {
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
-
-    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     /**
      * Obtiene todos los usuarios registrados en el sistema
@@ -152,12 +148,17 @@ public class UsuarioController {
             @PathVariable Long id,
             @Parameter(description = "Nuevos datos del usuario", required = true)
             @RequestBody UsuarioDTO usuarioDTO) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean esAdmin = userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRADOR"));
+        // Si el usuario NO es admin y está actualizando su propio usuario, no puede cambiar el rol
+        if (!esAdmin && userDetails.getId().equals(id)) {
+            usuarioDTO.setRolId(null); // Ignorar cualquier cambio de rol
+        }
         Usuario usuarioAntes = usuarioRepository.findById(id).orElse(null);
         ResponseEntity<UsuarioDTO> response = usuarioService.updateUser(id, usuarioDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
         if (response.getStatusCode().is2xxSuccessful()) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Usuario usuarioAccion = usuarioRepository.findById(userDetails.getId()).orElse(null);
             if (usuarioAccion == null) {
                 System.err.println("[LOG ACTIVIDAD] usuarioAccion es null, no se registra actividad");
@@ -180,60 +181,9 @@ public class UsuarioController {
         return response;
     }
 
-    // Utilidad para comparar y obtener solo los cambios
-    private HashMap<String, Object> obtenerCambios(Usuario antes, UsuarioDTO despues) {
-        HashMap<String, Object> cambios = new HashMap<>();
-        if (antes == null || despues == null) return cambios;
-        if (!equalsOrNull(antes.getNombre(), despues.getNombre())) cambios.put("nombre", "'"+antes.getNombre()+"' → '"+despues.getNombre()+"'");
-        if (!equalsOrNull(antes.getApellido(), despues.getApellido())) cambios.put("apellido", "'"+antes.getApellido()+"' → '"+despues.getApellido()+"'");
-        if (!equalsOrNull(antes.getEmail(), despues.getEmail())) cambios.put("email", "'"+antes.getEmail()+"' → '"+despues.getEmail()+"'");
-        if (!equalsOrNull(antes.getDocumento(), despues.getDocumento())) cambios.put("documento", "'"+antes.getDocumento()+"' → '"+despues.getDocumento()+"'");
-        if (!equalsOrNull(antes.getTelefono(), despues.getTelefono())) cambios.put("telefono", "'"+antes.getTelefono()+"' → '"+despues.getTelefono()+"'");
-        if (antes.getRol() != null && despues.getRolId() != null && !antes.getRol().getRolId().equals(despues.getRolId())) cambios.put("rolId", "'"+antes.getRol().getRolId()+"' → '"+despues.getRolId()+"'");
-        if (antes.getEstado() != null && despues.getEstado() != null && !antes.getEstado().getNombreEstado().equals(despues.getEstado())) cambios.put("estado", "'"+antes.getEstado().getNombreEstado()+"' → '"+despues.getEstado()+"'");
-        if (antes.getTipoDocumento() != null && despues.getTipoDocumento() != null && !antes.getTipoDocumento().getTipoDocumento().equals(despues.getTipoDocumento())) cambios.put("tipoDocumento", "'"+antes.getTipoDocumento().getTipoDocumento()+"' → '"+despues.getTipoDocumento()+"'");
-        return cambios;
-    }
-
     private boolean equalsOrNull(Object a, Object b) {
         if (a == null && b == null) return true;
         if (a == null || b == null) return false;
         return a.equals(b);
-    }
-
-    // Utilidad para convertir Usuario a un Map serializable
-    private HashMap<String, Object> usuarioToSimpleMap(Usuario usuario) {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("usuarioId", usuario.getUsuarioId());
-        map.put("nombre", usuario.getNombre());
-        map.put("apellido", usuario.getApellido());
-        map.put("email", usuario.getEmail());
-        map.put("documento", usuario.getDocumento());
-        map.put("telefono", usuario.getTelefono());
-        map.put("fechaRegistro", usuario.getFechaRegistro());
-        map.put("ultimoAcceso", usuario.getUltimoAcceso());
-        map.put("rol", usuario.getRol() != null ? usuario.getRol().getNombreRol() : null);
-        map.put("estado", usuario.getEstado() != null ? usuario.getEstado().getNombreEstado() : null);
-        map.put("tipoDocumento", usuario.getTipoDocumento() != null ? usuario.getTipoDocumento().getTipoDocumento() : null);
-        return map;
-    }
-
-    // Utilidad para convertir UsuarioDTO a Map serializable
-    private HashMap<String, Object> usuarioDtoToMap(UsuarioDTO dto) {
-        if (dto == null) return null;
-        HashMap<String, Object> map = new HashMap<>();
-        if (dto.getUsuarioId() != null) map.put("usuarioId", dto.getUsuarioId());
-        if (dto.getNombre() != null) map.put("nombre", dto.getNombre());
-        if (dto.getApellido() != null) map.put("apellido", dto.getApellido());
-        if (dto.getEmail() != null) map.put("email", dto.getEmail());
-        if (dto.getDocumento() != null) map.put("documento", dto.getDocumento());
-        if (dto.getTelefono() != null) map.put("telefono", dto.getTelefono());
-        if (dto.getFechaRegistro() != null) map.put("fechaRegistro", dto.getFechaRegistro());
-        if (dto.getUltimoAcceso() != null) map.put("ultimoAcceso", dto.getUltimoAcceso());
-        if (dto.getRolId() != null) map.put("rolId", dto.getRolId());
-        if (dto.getEstado() != null) map.put("estado", dto.getEstado());
-        if (dto.getTipoDocumento() != null) map.put("tipoDocumento", dto.getTipoDocumento());
-        // No incluir password ni campos complejos
-        return map;
     }
 }

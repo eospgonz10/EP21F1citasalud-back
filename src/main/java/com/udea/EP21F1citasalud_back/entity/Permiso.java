@@ -34,13 +34,13 @@ public class Permiso {
     @ManyToMany(mappedBy = "permisos")
     @JsonIgnore // Ignorar en la serialización para evitar ciclos
     private Set<Rol> roles = new HashSet<>();
-    
+
     // Métodos equals y hashCode personalizados para evitar recursividad
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Permiso)) return false;
-        
+
         Permiso permiso = (Permiso) o;
         return permisoId != null && permisoId.equals(permiso.permisoId);
     }
