@@ -3,14 +3,10 @@ services:
     name: citasalud
     env: docker
     plan: free
-    repo: https://github.com/eospgonz10/EP21F1citasalud-back/tree/rama2
     branch: rama2
     dockerfilePath: EP21F1citasalud-back-main/Dockerfile
-    buildFilter:
-      paths:
-        - EP21F1citasalud-back-main/**
-    buildCommand: ""
-    startCommand: ""
+    buildCommand: ./mvnw clean package
+    startCommand: java -jar target/EP21F1citasalud-back-0.0.1-SNAPSHOT.jar
     envVars:
       - key: SERVER_PORT
         value: 8080
