@@ -5,8 +5,6 @@ services:
     plan: free
     branch: rama2
     dockerfilePath: EP21F1citasalud-back-main/Dockerfile
-    buildCommand: ./mvnw clean package
-    startCommand: java -jar target/EP21F1citasalud-back-0.0.1-SNAPSHOT.jar
     envVars:
       - key: SERVER_PORT
         value: 8080
