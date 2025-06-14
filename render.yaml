@@ -4,7 +4,7 @@ services:
     env: docker
     plan: free
     branch: rama2
-    dockerfilePath: EP21F1citasalud-back-main/Dockerfile
+    dockerfilePath: .devcontainer/Dockerfile
     envVars:
       - key: SERVER_PORT
         value: 8080
