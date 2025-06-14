@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: citasalud
+    env: docker
+    plan: free
+    repo: https://github.com/eospgonz10/EP21F1citasalud-back/tree/rama2
+    branch: main
+    dockerfilePath: EP21F1citasalud-back-main/Dockerfile
+    buildFilter:
+      paths:
+        - EP21F1citasalud-back-main/**
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: SERVER_PORT
+        value: 8080
+      - key: CONTEXT_PATH
+        value: /api
+      - key: DB_URL
+        value: jdbc:postgresql://db:5432/bd_citassalud
+      - key: DB_USERNAME
+        value: postgres
+      - key: DB_PASSWORD
+        value: root
+      - key: SWAGGER_SERVER_URL
+        value: https://citasalud.onrender.com/api
+      - key: JWT_SECRET
+        value: citasalud2025clavesupersecretajwttokenaudmuchoscaracteres2025
+      - key: JWT_EXPIRATION
+        value: 86400000
