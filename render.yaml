@@ -11,7 +11,7 @@ services:
       - key: CONTEXT_PATH
         value: /api
       - key: DB_URL
-        value: jdbc:postgresql://dpg-d170edmmcj7s73cll220-a:5432/bd_citassalud
+        value: jdbc:postgresql://dpg-d170edmmcj7s73cll220-a:5432/bd_citassalud_a24i
       - key: DB_USERNAME
         value: bd_citassalud_a24i_user
       - key: DB_PASSWORD
@@ -22,3 +22,4 @@ services:
         value: citasalud2025clavesupersecretajwttokenaudmuchoscaracteres2025
       - key: JWT_EXPIRATION
         value: 86400000
+
