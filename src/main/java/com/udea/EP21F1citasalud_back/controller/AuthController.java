@@ -71,17 +71,17 @@ public class AuthController {
             estado = "USUARIO_NO_ENCONTRADO";
             codigoError = "NO_USER";
             registrarAcceso(null, request, estado, codigoError);
-            return ResponseEntity.status(401).body("Credenciales inválidas");
+            return ResponseEntity.status(401).body(new AuthResponse("Credenciales inválidas", "ERROR"));
         }
         // Validar estado del usuario
         if (usuario.getEstado() == null || usuario.getEstado().getIdEstado() == null) {
-            return ResponseEntity.status(401).body("El usuario no tiene estado definido");
+            return ResponseEntity.status(401).body(new AuthResponse("El usuario no tiene estado definido", "ERROR"));
         }
         if (usuario.getEstado().getIdEstado() == 3) { // 3 = SUSPENDIDO
-            return ResponseEntity.status(403).body("El usuario está suspendido. Contacte al administrador.");
+            return ResponseEntity.status(403).body(new AuthResponse("El usuario está suspendido. Contacte al administrador.", "SUSPENDED"));
         }
         if (usuario.getEstado().getIdEstado() != 1) { // 1 = ACTIVO
-            return ResponseEntity.status(401).body("El usuario no está activo");
+            return ResponseEntity.status(401).body(new AuthResponse("El usuario no está activo", "INACTIVE"));
         }
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -93,7 +93,10 @@ public class AuthController {
             System.out.println("[2FA] Código para " + loginRequest.getEmail() + ": " + code);
             estado = "2FA_ENVIADO";
             registrarAcceso(usuario, request, estado, null);
-            return ResponseEntity.ok("Código de verificación enviado. Verifique su SMS/correo (simulado en consola).");
+            return ResponseEntity.ok(new AuthResponse(
+                "Código de verificación enviado. Verifique su SMS/correo (simulado en consola).", 
+                "2FA_REQUIRED"
+            ));
         } catch (Exception ex) {
             // Manejo de intentos fallidos por logs SOLO del día actual
             java.time.LocalDateTime inicioDia = java.time.LocalDate.now().atStartOfDay();
@@ -112,9 +115,12 @@ public class AuthController {
             codigoError = ex.getMessage();
             registrarAcceso(usuario, request, estado, codigoError);
             if (usuario.getEstado() != null && usuario.getEstado().getIdEstado() == 3) {
-                return ResponseEntity.status(403).body("El usuario ha sido suspendido por múltiples intentos fallidos. Contacte al administrador.");
+                return ResponseEntity.status(403).body(new AuthResponse(
+                    "El usuario ha sido suspendido por múltiples intentos fallidos. Contacte al administrador.", 
+                    "SUSPENDED"
+                ));
             }
-            return ResponseEntity.status(401).body("Credenciales inválidas");
+            return ResponseEntity.status(401).body(new AuthResponse("Credenciales inválidas", "ERROR"));
         }
     }
 
@@ -132,14 +138,14 @@ public class AuthController {
             estado = "USUARIO_NO_ENCONTRADO";
             codigoError = "NO_USER";
             registrarAcceso(null, request, estado, codigoError);
-            return ResponseEntity.status(401).body("Usuario no encontrado");
+            return ResponseEntity.status(401).body(new AuthResponse("Usuario no encontrado", "ERROR"));
         }
         boolean valido = twoFactorAuthManager.verifyCode(twoFactorRequest.getEmail(), twoFactorRequest.getCode());
         if (!valido) {
             estado = "2FA_INVALIDO";
             codigoError = "INVALIDO_O_EXPIRADO";
             registrarAcceso(usuario, request, estado, codigoError);
-            return ResponseEntity.status(401).body("Código 2FA inválido o expirado");
+            return ResponseEntity.status(401).body(new AuthResponse("Código 2FA inválido o expirado", "ERROR"));
         }
         // Construir UserDetailsImpl y Authentication manualmente
         UserDetailsImpl userDetails = UserDetailsImpl.build(usuario);

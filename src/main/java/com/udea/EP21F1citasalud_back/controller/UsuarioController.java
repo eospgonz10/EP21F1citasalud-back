@@ -1,5 +1,6 @@
 package com.udea.EP21F1citasalud_back.controller;
 
+import com.udea.EP21F1citasalud_back.DTO.ActivarUsuarioRequest;
 import com.udea.EP21F1citasalud_back.DTO.UsuarioDTO;
 import com.udea.EP21F1citasalud_back.entity.ActividadUsuario;
 import com.udea.EP21F1citasalud_back.entity.Estado;
@@ -184,14 +185,20 @@ public class UsuarioController {
 
     /**
      * Activar un usuario por su correo electrónico
-     * @param email El correo electrónico del usuario a activar
+     * @param request El request con el correo electrónico del usuario a activar
      * @return Mensaje de éxito o error
      */
     @PostMapping("/activar-usuario")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Activar usuario por correo", description = "Permite a un administrador activar un usuario por su email")
-    public ResponseEntity<?> activarUsuarioPorEmail(@RequestParam String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario activado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "400", description = "El usuario no está bloqueado/suspendido"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos de administrador")
+    })
+    public ResponseEntity<?> activarUsuarioPorEmail(@RequestBody ActivarUsuarioRequest request) {
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail()).orElse(null);
         if (usuario == null) {
             return ResponseEntity.status(404).body("Usuario no encontrado");
         }
@@ -210,7 +217,7 @@ public class UsuarioController {
                 ActividadUsuario actividad = new ActividadUsuario();
                 actividad.setUsuario(usuarioAccion);
                 actividad.setTipoActividad("DESBLOQUEO_USUARIO");
-                actividad.setDescripcion("Desbloqueo de usuario con email: " + usuario.getEmail());
+                actividad.setDescripcion("Desbloqueo de usuario con email: " + request.getEmail());
                 actividad.setFechaHora(LocalDateTime.now());
                 actividad.setDetalleAdiccionales("Usuario desbloqueado por admin");
                 actividadUsuarioRepository.save(actividad);
