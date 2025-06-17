@@ -229,6 +229,42 @@ public class UsuarioController {
         return ResponseEntity.ok("Usuario activado correctamente");
     }
 
+    /**
+     * Registro público de pacientes
+     * Permite crear nuevos pacientes sin autenticación ni permisos
+     * Automáticamente asigna rol de paciente (ID 3) y estado activo (ID 1)
+     * No registra actividad debido a que no hay usuario autenticado
+     * @param usuarioDTO Datos del paciente a registrar (sin necesidad de enviar rolId)
+     * @return Paciente registrado con status 201
+     */
+    @PostMapping("/registro-paciente")
+    @Operation(summary = "Registro público de pacientes", 
+               description = "Permite el registro de nuevos pacientes sin autenticación. El rol de paciente se asigna automáticamente.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Paciente registrado correctamente",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UsuarioDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de paciente inválidos",
+                    content = @Content)
+    })
+    public ResponseEntity<UsuarioDTO> registrarPaciente(
+            @Parameter(description = "Datos del paciente a registrar (rolId no es necesario)", required = true)
+            @RequestBody UsuarioDTO usuarioDTO) {
+        
+        // Forzar configuración para pacientes
+        usuarioDTO.setRolId(3); // Rol paciente
+        usuarioDTO.setEstado(1); // Estado activo
+        usuarioDTO.setUsuarioId(null); // Asegurar que es un nuevo usuario
+        
+        UsuarioDTO nuevoPaciente = usuarioService.createUser(usuarioDTO);
+        
+        // No se registra actividad ya que no hay usuario autenticado
+        // y el campo usuario_id es obligatorio en la tabla actividad_usuario
+        System.out.println("[LOG REGISTRO PÚBLICO] Nuevo paciente registrado: " + nuevoPaciente.getEmail() + " con ID: " + nuevoPaciente.getUsuarioId());
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPaciente);
+    }
+
     private boolean equalsOrNull(Object a, Object b) {
         if (a == null && b == null) return true;
         if (a == null || b == null) return false;

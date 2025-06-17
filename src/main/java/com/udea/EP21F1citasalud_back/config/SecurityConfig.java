@@ -99,7 +99,9 @@ public class SecurityConfig {
                 //Ruta de Actuator descubrimiento de la api
                 .requestMatchers("/actuator/**").permitAll()
                 // Permitir acceso a todas las rutas relacionadas con Swagger
-                .requestMatchers("/doc/**", "/swagger-ui/**", "/swagger-ui.html", "/api/v3/api-docs/**", "/webjars/**").permitAll()                
+                .requestMatchers("/doc/**", "/swagger-ui/**", "/swagger-ui.html", "/api/v3/api-docs/**", "/webjars/**").permitAll()
+                // Permitir registro público de pacientes
+                .requestMatchers("/usuarios/registro-paciente").permitAll()
                 // Resto de rutas requieren autenticación
                 .anyRequest().authenticated()
             )
