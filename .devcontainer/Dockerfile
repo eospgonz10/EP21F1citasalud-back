@@ -1,10 +1,14 @@
-FROM openjdk:17-jdk-slim
+# Stage 1: Build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends postgresql-client git maven \
-    && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
-# Crear el usuario vscode
-RUN useradd -ms /bin/bash vscode
+# Stage 2: Run
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 
-USER vscode
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
