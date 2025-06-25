@@ -2,12 +2,11 @@ package com.udea.EP21F1citasalud_back.controller;
 
 import com.udea.EP21F1citasalud_back.DTO.ActivarUsuarioRequest;
 import com.udea.EP21F1citasalud_back.DTO.UsuarioDTO;
-import com.udea.EP21F1citasalud_back.entity.ActividadUsuario;
 import com.udea.EP21F1citasalud_back.entity.Estado;
 import com.udea.EP21F1citasalud_back.entity.Usuario;
-import com.udea.EP21F1citasalud_back.repository.ActividadUsuarioRepository;
 import com.udea.EP21F1citasalud_back.repository.UsuarioRepository;
 import com.udea.EP21F1citasalud_back.security.UserDetailsImpl;
+import com.udea.EP21F1citasalud_back.service.ActividadService;
 import com.udea.EP21F1citasalud_back.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,8 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -34,14 +31,16 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-    @Autowired
-    private ActividadUsuarioRepository actividadUsuarioRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final ActividadService actividadService;
+    private final UsuarioRepository usuarioRepository;
 
     @Autowired
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, 
+                           ActividadService actividadService,
+                           UsuarioRepository usuarioRepository) {
         this.usuarioService = usuarioService;
+        this.actividadService = actividadService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     /**
@@ -103,25 +102,13 @@ public class UsuarioController {
             @Parameter(description = "Datos del usuario a crear", required = true)
             @RequestBody UsuarioDTO usuarioDTO) {
         UsuarioDTO nuevoUsuario = usuarioService.createUser(usuarioDTO);
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Usuario usuarioAccion = usuarioRepository.findById(userDetails.getId()).orElse(null);
-        if (usuarioAccion == null) {
-            System.err.println("[LOG ACTIVIDAD] usuarioAccion es null, no se registra actividad");
-        } else {
-            ActividadUsuario actividad = new ActividadUsuario();
-            actividad.setUsuario(usuarioAccion);
-            actividad.setTipoActividad("CREAR_USUARIO");
-            actividad.setDescripcion("Creación de usuario con email: " + nuevoUsuario.getEmail());
-            actividad.setFechaHora(LocalDateTime.now());
-            // No se agregan detalles adicionales en creación
-            actividad.setDetalleAdiccionales("Usuario creado");
-            try {
-                actividadUsuarioRepository.save(actividad);
-                System.out.println("[LOG ACTIVIDAD] Actividad guardada correctamente");
-            } catch (Exception e) {
-                System.err.println("[LOG ACTIVIDAD] Error guardando actividad: " + e.getMessage());
-            }
-        }
+        
+        actividadService.registrarActividad(
+            "CREAR_USUARIO",
+            "Creación de usuario con email: " + nuevoUsuario.getEmail(),
+            "Usuario creado"
+        );
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
     }
 
@@ -152,35 +139,22 @@ public class UsuarioController {
             @RequestBody UsuarioDTO usuarioDTO) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         boolean esAdmin = userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRADOR"));
+        
         // Si el usuario NO es admin y está actualizando su propio usuario, no puede cambiar el rol
         if (!esAdmin && userDetails.getId().equals(id)) {
             usuarioDTO.setRolId(null); // Ignorar cualquier cambio de rol
         }
-        Usuario usuarioAntes = usuarioRepository.findById(id).orElse(null);
-        ResponseEntity<UsuarioDTO> response = usuarioService.updateUser(id, usuarioDTO)
-                .map(ResponseEntity::ok)
+        
+        return usuarioService.updateUser(id, usuarioDTO)
+                .map(updatedUser -> {
+                    actividadService.registrarActividad(
+                        "ACTUALIZAR_USUARIO",
+                        "Actualización de usuario con ID: " + id,
+                        "Se actualizó usuario"
+                    );
+                    return ResponseEntity.ok(updatedUser);
+                })
                 .orElse(ResponseEntity.notFound().build());
-        if (response.getStatusCode().is2xxSuccessful()) {
-            Usuario usuarioAccion = usuarioRepository.findById(userDetails.getId()).orElse(null);
-            if (usuarioAccion == null) {
-                System.err.println("[LOG ACTIVIDAD] usuarioAccion es null, no se registra actividad");
-            } else {
-                ActividadUsuario actividad = new ActividadUsuario();
-                actividad.setUsuario(usuarioAccion);
-                actividad.setTipoActividad("ACTUALIZAR_USUARIO");
-                actividad.setDescripcion("Actualización de usuario con ID: " + id);
-                actividad.setFechaHora(LocalDateTime.now());
-                // Solo mensaje genérico, sin detalles específicos
-                actividad.setDetalleAdiccionales("Se actualizó usuario");
-                try {
-                    actividadUsuarioRepository.save(actividad);
-                    System.out.println("[LOG ACTIVIDAD] Actividad guardada correctamente");
-                } catch (Exception e) {
-                    System.err.println("[LOG ACTIVIDAD] Error guardando actividad: " + e.getMessage());
-                }
-            }
-        }
-        return response;
     }
 
     /**
@@ -205,26 +179,17 @@ public class UsuarioController {
         if (usuario.getEstado() == null || usuario.getEstado().getIdEstado() != 3) {
             return ResponseEntity.status(400).body("El usuario no está bloqueado/suspendido");
         }
+        
         Estado estadoActivo = new Estado();
         estadoActivo.setIdEstado(1);
         usuario.setEstado(estadoActivo);
         usuarioRepository.save(usuario);
 
-        try {
-            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Usuario usuarioAccion = usuarioRepository.findById(userDetails.getId()).orElse(null);
-            if (usuarioAccion != null) {
-                ActividadUsuario actividad = new ActividadUsuario();
-                actividad.setUsuario(usuarioAccion);
-                actividad.setTipoActividad("DESBLOQUEO_USUARIO");
-                actividad.setDescripcion("Desbloqueo de usuario con email: " + request.getEmail());
-                actividad.setFechaHora(LocalDateTime.now());
-                actividad.setDetalleAdiccionales("Usuario desbloqueado por admin");
-                actividadUsuarioRepository.save(actividad);
-            }
-        } catch (Exception e) {
-            System.err.println("[LOG ACTIVIDAD] Error guardando actividad de desbloqueo: " + e.getMessage());
-        }
+        actividadService.registrarActividad(
+            "DESBLOQUEO_USUARIO",
+            "Desbloqueo de usuario con email: " + request.getEmail(),
+            "Usuario desbloqueado por admin"
+        );
 
         return ResponseEntity.ok("Usuario activado correctamente");
     }
@@ -258,9 +223,9 @@ public class UsuarioController {
         
         UsuarioDTO nuevoPaciente = usuarioService.createUser(usuarioDTO);
         
-        // No se registra actividad ya que no hay usuario autenticado
-        // y el campo usuario_id es obligatorio en la tabla actividad_usuario
-        System.out.println("[LOG REGISTRO PÚBLICO] Nuevo paciente registrado: " + nuevoPaciente.getEmail() + " con ID: " + nuevoPaciente.getUsuarioId());
+        actividadService.registrarActividadPublica(
+            "Nuevo paciente registrado: " + nuevoPaciente.getEmail() + " con ID: " + nuevoPaciente.getUsuarioId()
+        );
         
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPaciente);
     }
